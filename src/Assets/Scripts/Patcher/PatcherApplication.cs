@@ -53,7 +53,7 @@ namespace PatchKit.Unity.Patcher
             }
             else if (Application.platform == RuntimePlatform.LinuxPlayer)
             {
-                var executableFile = directoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly).Where(info =>
+                var executableFile = directoryInfo.GetFiles("*", SearchOption.TopDirectoryOnly).Where(info =>
                 {
                     // Read magic bytes
                     using (FileStream executableFileStream = File.OpenRead(info.FullName))
@@ -123,6 +123,8 @@ namespace PatchKit.Unity.Patcher
         protected virtual void Awake()
         {
             Instance = this;
+
+            Application.runInBackground = true;
 
             string appSecret;
 
@@ -240,7 +242,7 @@ namespace PatchKit.Unity.Patcher
             {
                 var process = new Process();
                 process.StartInfo.FileName = "/bin/chmod";
-                process.StartInfo.Arguments = string.Format("{0} {1}", permissions, file);
+                process.StartInfo.Arguments = string.Format("{0} \"{1}\"", permissions, file);
                 process.Start();
                 process.WaitForExit();
             }
