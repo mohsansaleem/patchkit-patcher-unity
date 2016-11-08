@@ -5,16 +5,20 @@ namespace PatchKit.Unity.Patcher.UI
 {
     public class TitleBar : MonoBehaviour
     {
-        public Button CloseButton;
-
-        public Button MinimizeButton;
+        public GameObject upperPanel;
+        public RectTransform middlePanel;
 
         private void Update()
         {
-            bool isEnabled = Application.platform == RuntimePlatform.WindowsPlayer;
+            bool isEnabled = false;//Application.platform == RuntimePlatform.WindowsPlayer;
 
-            CloseButton.gameObject.SetActive(isEnabled);
-            MinimizeButton.gameObject.SetActive(isEnabled);
+            upperPanel.SetActive(isEnabled);
+            if (!isEnabled)
+            {
+                middlePanel.anchorMax.Set(middlePanel.anchorMax.x, 1);
+                middlePanel.offsetMax = new Vector2(middlePanel.offsetMax.x, 0);
+            }
+               
         }
     }
 }

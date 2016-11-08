@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace PatchKit.Unity.Patcher.UI
 {
@@ -35,6 +36,14 @@ namespace PatchKit.Unity.Patcher.UI
         private void Start()
         {
             IsOpened = false;
+        }
+
+        public void ToggleOpen( Toggle value )
+        {
+            if (value.isOn)
+                Open();
+            else
+                Close();
         }
 
         public void Open()

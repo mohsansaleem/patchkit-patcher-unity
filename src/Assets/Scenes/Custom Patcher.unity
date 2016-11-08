@@ -198,7 +198,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22432694, guid: aa8d81358f7f93742a33d84a3ea37430, type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 4.598021e+31
       objectReference: {fileID: 0}
     - target: {fileID: 192140, guid: aa8d81358f7f93742a33d84a3ea37430, type: 2}
       propertyPath: m_IsActive
@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Configuration:
-    AppSecret: 4293eee67889137522d7e7ba9e62aff1
+    AppSecret: 646c04761996eabb30804b7481df2fc1
     ApplicationDataPath: app
     ForceVersion: 1
 --- !u!114 &377531154
