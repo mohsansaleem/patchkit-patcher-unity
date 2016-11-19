@@ -1,0 +1,31 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is ahead of 'origin/master' by 23 commits.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   src/Assets/Scenes/Custom Patcher.unity
+#	deleted:    src/app/build.x86
+#	deleted:    src/app/build_Data/Managed/UnityEngine.dll.mdb
+#	deleted:    src/app/build_Data/Mono/etc/mono/1.0/DefaultWsdlHelpGenerator.aspx
+#	deleted:    src/app/build_Data/Mono/etc/mono/1.0/machine.config
+#	deleted:    src/app/build_Data/Mono/etc/mono/2.0/Browsers/Compat.browser
+#	deleted:    src/app/build_Data/Mono/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx
+#	deleted:    src/app/build_Data/Mono/etc/mono/2.0/machine.config
+#	deleted:    src/app/build_Data/Mono/etc/mono/2.0/settings.map
+#	deleted:    src/app/build_Data/Mono/etc/mono/2.0/web.config
+#	deleted:    src/app/build_Data/Mono/etc/mono/browscap.ini
+#	deleted:    src/app/build_Data/Mono/etc/mono/config
+#	deleted:    src/app/build_Data/Mono/etc/mono/mconfig/config.xml
+#	deleted:    src/app/build_Data/Mono/x86/libmono.so
+#	deleted:    src/app/build_Data/PlayerConnectionConfigFile
+#	deleted:    src/app/build_Data/Plugins/x86/ScreenSelector.so
+#	deleted:    src/app/build_Data/Resources/unity default resources
+#	deleted:    src/app/build_Data/Resources/unity_builtin_extra
+#	deleted:    src/app/build_Data/mainData
+#	deleted:    src/app/build_Data/sharedassets0.assets
+#	deleted:    src/app/patcher_cache.json
+#
+
