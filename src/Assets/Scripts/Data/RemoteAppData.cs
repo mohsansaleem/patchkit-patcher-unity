@@ -165,26 +165,31 @@ namespace PatchKit.Unity.Patcher.Data
 
             string keySecret = GetKeySecret();
 
+            //try
+            //{
+            //    var contentTorrentUrl = _mainApiConnection.GetAppVersionContentTorrentUrl(_appSecret, versionId, keySecret);
+
+            //    DownloadTorrent(contentPackagePath, contentTorrentUrl.Url, progressReporter, cancellationToken);
+            //}
+            //catch (OperationCanceledException)
+            //{
+            //    throw;
+            //}
+            //catch (Exception exception)
             try
             {
-                var contentTorrentUrl = _mainApiConnection.GetAppVersionContentTorrentUrl(_appSecret, versionId, keySecret);
-
-                DownloadTorrent(contentPackagePath, contentTorrentUrl.Url, progressReporter, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                Debug.LogWarning("Failed to download content package with torrent. Trying to download it through HTTP.");
-
+                //Debug.LogException(exception);
+                //Debug.LogWarning("Failed to download content package with torrent. Trying to download it through HTTP.");
                 var contentUrls = _mainApiConnection.GetAppVersionContentUrls(_appSecret, versionId);
+
+                Debug.LogError(string.Format("ContentPackagePath: {0}\nContentUrls[0]: {1}\n", contentPackagePath, contentUrls[0].Url));
 
                 var contentSummary = _mainApiConnection.GetAppVersionContentSummary(_appSecret, versionId);
 
                 DownloadFileFromUrls(contentPackagePath, contentUrls.Select(url => url.Url).ToArray(), contentSummary.Size, contentSummary.Chunks.Size, contentSummary.Chunks.Hashes, progressReporter, cancellationToken);
+            } catch (Exception ex)
+            {
+                Debug.LogError("RemoteAppData.DownloadContentPackage: "+ex.ToString());
             }
         }
 
@@ -197,26 +202,30 @@ namespace PatchKit.Unity.Patcher.Data
 
             string keySecret = GetKeySecret();
 
+            //try
+            //{
+            //    var diffTorrentUrl = _mainApiConnection.GetAppVersionDiffTorrentUrl(_appSecret, versionId, keySecret);
+
+            //    DownloadTorrent(diffPackagePath, diffTorrentUrl.Url, progressReporter, cancellationToken);
+            //}
+            //catch (OperationCanceledException)
+            //{
+            //    throw;
+            //}
+            //catch (Exception exception)
             try
             {
-                var diffTorrentUrl = _mainApiConnection.GetAppVersionDiffTorrentUrl(_appSecret, versionId, keySecret);
-
-                DownloadTorrent(diffPackagePath, diffTorrentUrl.Url, progressReporter, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                Debug.LogWarning("Failed to download diff package with torrent. Trying to download it through HTTP.");
+                //Debug.LogException(exception);
+                //Debug.LogWarning("Failed to download diff package with torrent. Trying to download it through HTTP.");
 
                 var diffUrls = _mainApiConnection.GetAppVersionDiffUrls(_appSecret, versionId);
 
                 var diffSummary = _mainApiConnection.GetAppVersionDiffSummary(_appSecret, versionId);
 
                 DownloadFileFromUrls(diffPackagePath, diffUrls.Select(url => url.Url).ToArray(), diffSummary.Size, diffSummary.Chunks.Size, diffSummary.Chunks.Hashes, progressReporter, cancellationToken);
+            } catch (Exception ex)
+            {
+                Debug.LogError("RemoteAppData.DownloadDiffPackage: " + ex.ToString());
             }
         }
     }

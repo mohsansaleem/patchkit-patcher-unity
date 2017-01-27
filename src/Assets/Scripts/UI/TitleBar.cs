@@ -10,14 +10,14 @@ namespace PatchKit.Unity.Patcher.UI
 
         private void Update()
         {
-            bool isEnabled = false;//Application.platform == RuntimePlatform.WindowsPlayer;
+            //bool isEnabled = false;//Application.platform == RuntimePlatform.WindowsPlayer;
 
-            upperPanel.SetActive(isEnabled);
-            if (!isEnabled)
-            {
-                middlePanel.anchorMax.Set(middlePanel.anchorMax.x, 1);
-                middlePanel.offsetMax = new Vector2(middlePanel.offsetMax.x, 0);
-            }
+            //upperPanel.SetActive(isEnabled);
+            //if (!isEnabled)
+            //{
+            //    middlePanel.anchorMax.Set(middlePanel.anchorMax.x, 1);
+            //    middlePanel.offsetMax = new Vector2(middlePanel.offsetMax.x, 0);
+            //}
                
         }
     }
