@@ -29,7 +29,7 @@ GameObject:
   - 222: {fileID: 22203856}
   - 114: {fileID: 11415206}
   - 114: {fileID: 11479852}
-  - 114: {fileID: 11456300}
+  - 114: {fileID: 11434912}
   m_Layer: 5
   m_Name: Progress Bar
   m_TagString: Untagged
@@ -544,7 +544,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &196114
 GameObject:
   m_ObjectHideFlags: 1
@@ -741,7 +741,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 12 minutes Remaining
+  m_Text: Status
 --- !u!114 &11406670
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -857,7 +857,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 25.02 MB of 78.42 MB
+  m_Text: Download Status
 --- !u!114 &11409784
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -917,7 +917,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 702.9 kB/sec.
+  m_Text: Download Speed
 --- !u!114 &11410956
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1094,7 +1094,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 11412118}
   m_HandleRect: {fileID: 22459572}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1276,6 +1276,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &11434912
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 103178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30235d757fd376243abdb693a630c907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Text: {fileID: 11497018}
+  Image: {fileID: 11489756}
 --- !u!114 &11437082
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1433,19 +1446,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3d00a7f962e41adb1c7a19b2fe6b0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &11456300
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 103178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be51d3dc39212064fbef8b98a493eab2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Text: {fileID: 11476464}
-  Slider: {fileID: 11479852}
 --- !u!114 &11459236
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1510,6 +1510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6ee29d2a83ad1c498fa88fa152d5638, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LoadOnStart: 1
   AppSecret: 
   Format: '<b>{label}</b>
 
@@ -1776,6 +1777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 498b9652ef6fd4dd196de446f1cc0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LoadOnStart: 1
   TitlePrefab: {fileID: 11414180, guid: b5d2d403627c04459b6923e3baec2808, type: 2}
   ChangePrefab: {fileID: 11489228, guid: 569a9ef51597141779e5b49d35a09077, type: 2}
 --- !u!114 &11486982
@@ -2471,8 +2473,8 @@ RectTransform:
   m_RootOrder: 2
   m_AnchorMin: {x: 0, y: 0.19027664}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -39}
-  m_SizeDelta: {x: 0, y: -78}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &22457738
 RectTransform:
@@ -2490,7 +2492,7 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.00018310547}
   m_SizeDelta: {x: -10, y: 0}
   m_Pivot: {x: 0.5, y: 1.0000001}
 --- !u!224 &22459572
