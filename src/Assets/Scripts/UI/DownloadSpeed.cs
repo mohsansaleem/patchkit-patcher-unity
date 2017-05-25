@@ -9,18 +9,12 @@ namespace PatchKit.Unity.Patcher.UI
 
         private void Start()
         {
-            PatcherApplication.Instance.Patcher.OnDownloadProgress += progress =>
+            Patcher.Instance.UpdateAppStatusChanged += status =>
             {
-                Text.text = progress.KilobytesPerSecond.ToString("0.0 kB/sec.");
+                Text.text = status.IsDownloading ? (status.DownloadBytesPerSecond / 1024.0).ToString("0.0 kB/sec.") : string.Empty;
             };
 
-            PatcherApplication.Instance.Patcher.OnStateChanged += state =>
-            {
-                if (state != PatcherState.Processing)
-                {
-                    Text.text = string.Empty;
-                }
-            };
+            Text.text = string.Empty;
         }
     }
 }
