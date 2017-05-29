@@ -1,12 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace PatchKit.Unity.Patcher
+namespace PatchKit.Unity.Patcher.UI
 {
     [RequireComponent(typeof(Animator))]
     public class MessagePanel : MonoBehaviour
     {
-        public Text ButtonText;
+        public Button PlayButton;
+
+        public Button CheckButton;
+
+        public Text CheckButtonText;
+
+        private bool _canUpdateApp;
+
+        private bool _canCheckInternetConnection;
 
         private Animator _animator;
 
@@ -17,34 +25,59 @@ namespace PatchKit.Unity.Patcher
 
         private void Start()
         {
-            PatcherApplication.Instance.Patcher.OnStateChanged += state =>
+            Patcher.Instance.StateChanged += state =>
             {
-                if (state == PatcherState.Processing)
-                {
-                    _animator.SetBool("IsOpened", false);
-                }
-                else if (PatcherApplication.Instance.Patcher.CanPlay)
-                {
-                    _animator.SetBool("IsOpened", true);
-                    ButtonText.text = "Play";
-                }
-                else
-                {
-                    _animator.SetBool("IsOpened", true);
-                    ButtonText.text = "Retry";
-                }
+                _animator.SetBool("IsOpened", state == PatcherState.WaitingForUserDecision);
             };
+
+            Patcher.Instance.CanStartAppChanged += canStartApp =>
+            {
+                PlayButton.interactable = canStartApp;
+            };
+
+            Patcher.Instance.CanUpdateAppChanged += canUpdateApp =>
+            {
+                _canUpdateApp = canUpdateApp;
+                if(_canUpdateApp)
+                {
+                    CheckButtonText.text = "Check for updates";
+                }
+                CheckButton.interactable = _canUpdateApp || _canCheckInternetConnection;
+            };
+
+            Patcher.Instance.CanCheckInternetConnectionChanged += canCheckInternetConnection =>
+            {
+                _canCheckInternetConnection = canCheckInternetConnection;
+                if(_canCheckInternetConnection)
+                {
+                    CheckButtonText.text = "Check internet connection";
+                }
+                CheckButton.interactable = _canUpdateApp || _canCheckInternetConnection;
+            };
+
+            PlayButton.onClick.AddListener(OnPlayButtonClicked);
+            CheckButton.onClick.AddListener(OnCheckButtonClicked);
+
+            _animator.SetBool("IsOpened", false);
+            PlayButton.interactable = false;
+            CheckButton.interactable = false;
+            CheckButtonText.text = "Check for updates";
         }
 
-        public void Action()
+        private void OnPlayButtonClicked()
         {
-            if (PatcherApplication.Instance.Patcher.CanPlay)
+            Patcher.Instance.SetUserDecision(Patcher.UserDecision.StartApp);
+        }
+
+        private void OnCheckButtonClicked()
+        {
+            if(_canUpdateApp)
             {
-                PatcherApplication.Instance.StartApplicationAndQuit();
+                Patcher.Instance.SetUserDecision(Patcher.UserDecision.UpdateApp);
             }
-            else
+            else if(_canCheckInternetConnection)
             {
-                PatcherApplication.Instance.RetryPatching();
+                Patcher.Instance.SetUserDecision(Patcher.UserDecision.CheckInternetConnection);
             }
         }
     }

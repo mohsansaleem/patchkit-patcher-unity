@@ -3,10 +3,11 @@
     public enum PatcherState
     {
         None,
-        Processing,
-        Success,
-        Cancelled,
-        UnauthorizedAccess,
-        Error
+        CheckingInternetConnection,
+        LoadingPatcherConfiguration,
+        UpdatingApp,
+        StartingApp,
+        HandlingErrorMessage,
+        WaitingForUserDecision
     }
 }

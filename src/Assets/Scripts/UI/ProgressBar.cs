@@ -12,26 +12,28 @@ namespace PatchKit.Unity.Patcher.UI
         private void SetProgress(double progress)
         {
             Text.text = progress.ToString("0.0%");
-            var anchorMax = Image.rectTransform.anchorMax;
-            anchorMax.x = (float)progress;
-            Image.rectTransform.anchorMax = anchorMax;
+            Image.fillAmount = (float)progress;
+            //var anchorMax = Image.rectTransform.anchorMax;
+            //anchorMax.x = (float)progress;
+            //Image.rectTransform.anchorMax = anchorMax;
         }
 
         private void Start()
         {
-            PatcherApplication.Instance.Patcher.OnProgress += SetProgress;
-
-            PatcherApplication.Instance.Patcher.OnStateChanged += state =>
+            Patcher.Instance.StateChanged += state =>
             {
-                if (state == PatcherState.None)
-                {
-                    SetProgress(0.0);
-                }
-                else if (state != PatcherState.Processing)
+                if (state != PatcherState.UpdatingApp)
                 {
                     SetProgress(1.0);
                 }
             };
+
+            Patcher.Instance.UpdateAppStatusChanged += status =>
+            {
+                SetProgress(status.Progress);
+            };
+
+            SetProgress(1.0);
         }
     }
 }

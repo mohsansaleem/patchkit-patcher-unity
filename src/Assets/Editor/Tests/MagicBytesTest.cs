@@ -1,46 +1,45 @@
-using System;
-using System.IO;
 using NUnit.Framework;
 using PatchKit.Unity.Patcher.Data;
 
 public class MagicBytesTest
 {
-    #region Fields
-
-    const string MacApp = "Assets/Editor/Tests/Fixtures/mac_app";
-    const string WindowsApp = "Assets/Editor/Tests/Fixtures/windows_app";
-    const string LinuxApp = "Assets/Editor/Tests/Fixtures/linux_app";
-    
-    #endregion
-    
-    #region Methods
+    private readonly string _macApp = TestFixtures.GetFilePath("magicbytes-test/mac_app");
+    private readonly string _windowsApp = TestFixtures.GetFilePath("magicbytes-test/windows_app");
+    private readonly string _linuxApp = TestFixtures.GetFilePath("magicbytes-test/linux_app");
 
     [Test]
-    public void TestForMacExecutable()
+    public void IsMacExecutable_ForMacApp_ReturnsTrue()
     {
-        PreCheck();
-
-        Assert.IsTrue(MagicBytes.IsMacExecutable(MacApp));
-        Assert.IsFalse(MagicBytes.IsMacExecutable(WindowsApp));
-        Assert.IsFalse(MagicBytes.IsMacExecutable(LinuxApp));
+        Assert.IsTrue(MagicBytes.IsMacExecutable(_macApp));
     }
 
     [Test]
-    public void TestForLinuxExecutable()
+    public void IsMacExecutable_ForWindowsApp_ReturnsFalse()
     {
-        PreCheck();
-
-        Assert.IsFalse(MagicBytes.IsLinuxExecutable(MacApp));
-        Assert.IsFalse(MagicBytes.IsLinuxExecutable(WindowsApp));
-        Assert.IsTrue(MagicBytes.IsLinuxExecutable(LinuxApp));
+        Assert.IsFalse(MagicBytes.IsMacExecutable(_windowsApp));
     }
 
-    private static void PreCheck()
+    [Test]
+    public void IsMacExecutable_ForLinuxApp_ReturnsFalse()
     {
-        Assert.IsTrue(File.Exists(MacApp));
-        Assert.IsTrue(File.Exists(WindowsApp));
-        Assert.IsTrue(File.Exists(LinuxApp));
+        Assert.IsFalse(MagicBytes.IsMacExecutable(_linuxApp));
     }
 
-    #endregion
+    [Test]
+    public void IsLinuxExecutable_ForMacApp_ReturnsFalse()
+    {
+        Assert.IsFalse(MagicBytes.IsLinuxExecutable(_macApp));
+    }
+
+    [Test]
+    public void IsLinuxExecutable_ForWindowsApp_ReturnsFalse()
+    {
+        Assert.IsFalse(MagicBytes.IsLinuxExecutable(_windowsApp));
+    }
+
+    [Test]
+    public void IsLinuxExecutable_ForLinuxApp_ReturnsTrue()
+    {
+        Assert.IsTrue(MagicBytes.IsLinuxExecutable(_linuxApp));
+    }
 }

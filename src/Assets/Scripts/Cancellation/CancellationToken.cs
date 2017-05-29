@@ -3,33 +3,20 @@ using JetBrains.Annotations;
 
 namespace PatchKit.Unity.Patcher.Cancellation
 {
-    internal struct CancellationToken
+    public struct CancellationToken
     {
         [CanBeNull] private readonly CancellationTokenSource _cancellationTokenSource;
 
         public static readonly CancellationToken Empty = new CancellationToken(null);
 
-        internal CancellationToken(CancellationTokenSource cancellationTokenSource)
+        public CancellationToken(CancellationTokenSource cancellationTokenSource)
         {
             _cancellationTokenSource = cancellationTokenSource;
         }
 
-        public event Action Cancelled
+        public CancellationTokenRegistration Register(Action action)
         {
-            add
-            {
-                if (_cancellationTokenSource != null)
-                {
-                    _cancellationTokenSource.Cancelled += value;
-                }
-            }
-            remove
-            {
-                if (_cancellationTokenSource != null)
-                {
-                    _cancellationTokenSource.Cancelled -= value;
-                }
-            }
+            return new CancellationTokenRegistration(_cancellationTokenSource, action);
         }
 
         public bool IsCancelled
