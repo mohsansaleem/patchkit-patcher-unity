@@ -9,7 +9,7 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: Frag-Games
+  companyName: Edcoda
   productName: Coda Quest
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
