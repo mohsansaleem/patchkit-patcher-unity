@@ -85,7 +85,8 @@ namespace PatchKit.Unity.Patcher.Debug
                         _sendLogKind = _sendLogKind.HasValue ? Mathf.Min(_sendLogKind.Value, log.GetKind()) : log.GetKind();
                     }
                 })
-                .Throttle(TimeSpan.FromSeconds(5)).Subscribe(log =>
+                .Throttle(TimeSpan.FromSeconds(5))
+                .Subscribe(log =>
                 {
                     lock (_lock)
                     {
@@ -128,14 +129,11 @@ namespace PatchKit.Unity.Patcher.Debug
 
         private void OnApplicationQuit()
         {
-            lock (_lock)
+            if (_isLogBeingSent || _shouldLogBeSent)
             {
-                if (_isLogBeingSent || _shouldLogBeSent)
-                {
-                    DebugLogger.Log("Cancelling application quit because log is being sent or is about to be sent.");
-                    _hasApplicationQuit = true;
-                    Application.CancelQuit();
-                }
+                DebugLogger.Log("Cancelling application quit because log is being sent or is about to be sent.");
+                _hasApplicationQuit = true;
+                Application.CancelQuit();
             }
         }
 
@@ -143,6 +141,7 @@ namespace PatchKit.Unity.Patcher.Debug
         {
             using (var logFileStream = new FileStream(_logFilePath, FileMode.OpenOrCreate, FileAccess.Write))
             {
+                logFileStream.Seek(0, SeekOrigin.End);
                 using (var logFileStreamWriter = new StreamWriter(logFileStream))
                 {
                     foreach (var message in _logBuffer)
@@ -158,7 +157,7 @@ namespace PatchKit.Unity.Patcher.Debug
         {
             _logStream.OnNext(new Log
             {
-                Message = string.Format("{0}\n{1}", condition, stackTrace), Type = type
+                Message = string.Format("{0}", condition), Type = type
             });
         }
 

@@ -28,8 +28,11 @@ namespace PatchKit.Unity.Patcher
             None,
             RepairApp,
             StartApp,
+            StartAppAutomatically,
             InstallApp,
-            CheckForAppUpdates
+            InstallAppAutomatically,
+            CheckForAppUpdates,
+            CheckForAppUpdatesAutomatically
         }
 
         private static readonly DebugLogger DebugLogger = new DebugLogger(typeof(Patcher));
@@ -123,6 +126,13 @@ namespace PatchKit.Unity.Patcher
         {
             get { return _data; }
         }
+        
+        private readonly ReactiveProperty<string> _warning = new ReactiveProperty<string>();
+
+        public IReadOnlyReactiveProperty<string> Warning
+        {
+            get { return _warning; }
+        }
 
         public void SetUserDecision(UserDecision userDecision)
         {
@@ -165,7 +175,7 @@ namespace PatchKit.Unity.Patcher
             Assert.IsNotNull(ErrorDialog, "ErrorDialog must be set.");
 
             _instance = this;
-            Dispatcher.Initialize();
+            UnityDispatcher.Initialize();
             Application.runInBackground = true;
 
             DebugLogger.Log(string.Format("patchkit-patcher-unity: {0}", PatcherInfo.GetVersion()));
@@ -323,7 +333,7 @@ namespace PatchKit.Unity.Patcher
 
                 ThreadLoadPatcherConfiguration();
 
-                Dispatcher.Invoke(() => _app = new App(_data.Value.AppDataPath, _data.Value.AppSecret, _data.Value.OverrideLatestVersionId)).WaitOne();
+                UnityDispatcher.Invoke(() => _app = new App(_data.Value.AppDataPath, _data.Value.AppSecret, _data.Value.OverrideLatestVersionId)).WaitOne();
 
                 while (true)
                 {
@@ -373,7 +383,7 @@ namespace PatchKit.Unity.Patcher
                 _state.Value = PatcherState.LoadingPatcherData;
 
 #if UNITY_EDITOR
-                Dispatcher.Invoke(() =>
+                UnityDispatcher.Invoke(() =>
                 {
                     DebugLogger.Log("Using Unity Editor patcher data.");
                     _data.Value = new PatcherData
@@ -464,7 +474,7 @@ namespace PatchKit.Unity.Patcher
                 {
                     DebugLogger.Log("Automatically deciding to install app.");
                     _hasAutomaticallyInstalledApp = true;
-                    _userDecision = UserDecision.InstallApp;
+                    _userDecision = UserDecision.InstallAppAutomatically;
                     return;
                 }
 
@@ -473,7 +483,7 @@ namespace PatchKit.Unity.Patcher
                 {
                     DebugLogger.Log("Automatically deciding to check for app updates.");
                     _hasAutomaticallyCheckedForAppUpdate = true;
-                    _userDecision = UserDecision.CheckForAppUpdates;
+                    _userDecision = UserDecision.CheckForAppUpdatesAutomatically;
                     return;
                 }
 
@@ -481,7 +491,7 @@ namespace PatchKit.Unity.Patcher
                 {
                     DebugLogger.Log("Automatically deciding to start app.");
                     _hasAutomaticallyStartedApp = true;
-                    _userDecision = UserDecision.StartApp;
+                    _userDecision = UserDecision.StartAppAutomatically;
                     return;
                 }
 
@@ -518,8 +528,12 @@ namespace PatchKit.Unity.Patcher
 
         private void ThreadExecuteUserDecision(CancellationToken cancellationToken)
         {
+            bool displayWarningInsteadOfError = false;
+            
             try
             {
+                _warning.Value = string.Empty;
+                
                 DebugLogger.Log(string.Format("Executing user decision {0}...", _userDecision));
 
                 switch (_userDecision)
@@ -528,10 +542,19 @@ namespace PatchKit.Unity.Patcher
                         break;
                     case UserDecision.RepairApp:
                         break;
+                    case UserDecision.StartAppAutomatically:
                     case UserDecision.StartApp:
                         ThreadStartApp();
                         break;
+                    case UserDecision.InstallAppAutomatically:
+                        displayWarningInsteadOfError = _app.IsInstalled();
+                        ThreadUpdateApp(cancellationToken);
+                        break;
                     case UserDecision.InstallApp:
+                        ThreadUpdateApp(cancellationToken);
+                        break;
+                    case UserDecision.CheckForAppUpdatesAutomatically:
+                        displayWarningInsteadOfError = _app.IsInstalled();
                         ThreadUpdateApp(cancellationToken);
                         break;
                     case UserDecision.CheckForAppUpdates:
@@ -553,7 +576,7 @@ namespace PatchKit.Unity.Patcher
 
                 if (ThreadTryRestartWithRequestForPermissions())
                 {
-                    Dispatcher.Invoke(Quit);
+                    UnityDispatcher.Invoke(Quit);
                 }
                 else
                 {
@@ -585,7 +608,14 @@ namespace PatchKit.Unity.Patcher
                     "Error while executing user decision {0}: an exception has occured.", _userDecision));
                 DebugLogger.LogException(exception);
 
-                ThreadDisplayError(PatcherError.Other, cancellationToken);
+                if (displayWarningInsteadOfError)
+                {
+                    _warning.Value = "Unable to check for updates. Please check your internet connection.";
+                }
+                else
+                {
+                    ThreadDisplayError(PatcherError.Other, cancellationToken);
+                }
             }
         }
 
@@ -628,7 +658,7 @@ namespace PatchKit.Unity.Patcher
 
             appStarter.Start();
 
-            Dispatcher.Invoke(Quit);
+            UnityDispatcher.Invoke(Quit);
         }
 
         private void ThreadUpdateApp(CancellationToken cancellationToken)
@@ -664,7 +694,7 @@ namespace PatchKit.Unity.Patcher
                 RuntimePlatform applicationPlatform = default(RuntimePlatform);
                 string applicationDataPath = string.Empty;
 
-                Dispatcher.Invoke(() =>
+                UnityDispatcher.Invoke(() =>
                 {
                     applicationPlatform = Application.platform;
                     applicationDataPath = Application.dataPath;
@@ -713,7 +743,7 @@ namespace PatchKit.Unity.Patcher
 
         protected virtual void OnUpdateAppStatusChanged(OverallStatus obj)
         {
-            Dispatcher.Invoke(() =>
+            UnityDispatcher.Invoke(() =>
             {
                 if (UpdateAppStatusChanged != null) UpdateAppStatusChanged(obj);
             });
