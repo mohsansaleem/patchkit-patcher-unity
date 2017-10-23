@@ -44,6 +44,14 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             out ulong totalFreeBytes);
 #endif
 
+#if UNITY_STANDALONE_OSX
+
+        [DllImport("getdiskspaceosx", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool getAvailableDiskSpace(string t_path, out long freeBytes);
+
+#endif
+
         public void Execute(CancellationToken cancellationToken)
         {
             long availableDiskSpace = -1;
@@ -56,6 +64,14 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             GetDiskFreeSpaceEx(dir.Directory.Root.FullName, out freeBytes, out totalBytes, out totalFreeBytes);
 
             availableDiskSpace = (long) freeBytes;
+
+#elif UNITY_STANDALONE_OSX
+
+            long freeBytes = 0;
+            getAvailableDiskSpace(dir.Directory.Root.FullName, out freeBytes);
+
+            availableDiskSpace = freeBytes;
+
 #else
             var drive = new DriveInfo(dir.Directory.Root.FullName);
 
@@ -94,13 +110,27 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
 
         private long GetRequiredDiskSpaceForContent()
         {
-            long requiredDiskSpace = _contentSummary.Value.Size + _contentSummary.Value.Size + Reserve;
+            long uncompressedSize = _contentSummary.Value.UncompressedSize;
+            if (uncompressedSize == 0) // before 2.4
+            {
+                // estimate the size
+                uncompressedSize = (long) (_contentSummary.Value.Size * 1.4);
+            }
+            
+            long requiredDiskSpace = _contentSummary.Value.Size + uncompressedSize + Reserve;
             return requiredDiskSpace;
         }
 
         private long GetRequiredDiskSpaceForDiff()
         {
-            long requiredDiskSpace = _diffSummary.Value.Size + _diffSummary.Value.Size + _bigestFileSize + Reserve;
+            long uncompressedSize = _diffSummary.Value.UncompressedSize;
+            if (uncompressedSize == 0) // before 2.4
+            {
+                // estimate the size
+                uncompressedSize = (long) (_diffSummary.Value.Size * 1.4);
+            }
+            
+            long requiredDiskSpace = _diffSummary.Value.Size + uncompressedSize + _bigestFileSize + Reserve;
             return requiredDiskSpace;
         }
 

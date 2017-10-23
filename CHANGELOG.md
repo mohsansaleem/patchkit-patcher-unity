@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Fallback for content strategy in case of diff strategy failure
+
+### Changed
+- Geolocate: Increased timeout from 5s to 10s
+
+### Fixed
+- Compilation error on Unity 5.6 or higher
+- Geolocate: NullReferenceException on timeout
+
+## [3.4.0]
+### Added
+- Sentry integration
+- File parts support
+
+### Changed
+- Refactor log sending service
+- Move configuration option for switching whether to use diffs to defines
+- Use diffs only when publish method is set to "all"
+
+### Fixed
+- Fix progress reporting for unarchiving Pack1 packages
+- Free space calculation algorithm was using for smaller free space values that it should be
+- Fix error that occured when wrong license key was submitted
+
+## [3.3.0]
+### Added
+- getdiskspaceosx a native library for determining the amount of free space available on Mac OSX.
+- Status descriptions for updating app patcher state
+- Add configuration option to switch whether to use diffs or not
+
+### Changed
+- Separate version integrity check progress from update progress
+
 ## [3.2.0]
 ### Added
 - Using geolocation to find closest http server available

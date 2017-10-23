@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using PatchKit.Unity.Patcher.AppUpdater.Commands;
 using PatchKit.Unity.Patcher.Cancellation;
 using PatchKit.Unity.Patcher.Debug;
 
 namespace PatchKit.Unity.Patcher.AppUpdater
 {
-    public class AppUpdaterStrategyResolver : IAppUpdaterStrategyResolver
+    public class AppUpdaterStrategyResolver: IAppUpdaterStrategyResolver
     {
         private static readonly DebugLogger DebugLogger = new DebugLogger(typeof(AppUpdaterStrategyResolver));
 
@@ -14,7 +15,37 @@ namespace PatchKit.Unity.Patcher.AppUpdater
             DebugLogger.LogConstructor();
         }
 
-        public IAppUpdaterStrategy Resolve(AppUpdaterContext context)
+        public IAppUpdaterStrategy Create(StrategyType type, AppUpdaterContext context)
+        {
+            switch (type)
+            {
+                case StrategyType.Empty:
+                    return new AppUpdaterEmptyStrategy();
+                case StrategyType.Content:
+                    return new AppUpdaterContentStrategy(context);
+                case StrategyType.Diff:
+                    return new AppUpdaterDiffStrategy(context);
+                default:
+                    return new AppUpdaterContentStrategy(context);
+            }
+        }
+
+        public StrategyType GetFallbackStrategy(StrategyType strategyType)
+        {
+            switch (strategyType)
+            {
+                case StrategyType.Empty:
+                    return StrategyType.Empty;
+                case StrategyType.Content:
+                    return StrategyType.None;
+                case StrategyType.Diff:
+                    return StrategyType.Content;
+                default:
+                    return StrategyType.Content;
+            }
+        }
+
+        public StrategyType Resolve(AppUpdaterContext context)
         {
             Checks.ArgumentNotNull(context, "context");
 
@@ -29,12 +60,20 @@ namespace PatchKit.Unity.Patcher.AppUpdater
                 {
                     DebugLogger.Log("Installed version is the same as the latest version. Using empty strategy.");
 
-                    return new AppUpdaterEmptyStrategy();
+                    return StrategyType.Empty;
                 }
 
                 if (installedVersionId < latestVersionId)
                 {
-                    DebugLogger.Log("Installed version is older than the latest version. Checking whether cost of updating with diff is lower than cost of updating with content...");
+#if PATCHKIT_DONT_USE_DIFF_UPDATES
+                    DebugLogger.Log(
+                        "Installed version is older than the latest version. " +
+                        "Using content strategy due to define PATCHKIT_DONT_USE_DIFF_UPDATES");
+                    
+                    return StrategyType.Content;
+#else
+                    DebugLogger.Log(
+                        "Installed version is older than the latest version. Checking whether cost of updating with diff is lower than cost of updating with content...");
 
                     if (context.Configuration.CheckConsistencyBeforeDiffUpdate)
                     {
@@ -49,7 +88,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater
                         checkVersionIntegrity.Execute(CancellationToken.Empty);
 
                         if (checkVersionIntegrity.Results.Files.All(
-                                fileIntegrity => fileIntegrity.Status == FileIntegrityStatus.Ok))
+                            fileIntegrity => fileIntegrity.Status == FileIntegrityStatus.Ok))
                         {
                             DebugLogger.Log("Version is consistent. Diff update is allowed.");
                         }
@@ -67,7 +106,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater
                             DebugLogger.Log(
                                 "Version is not consistent. Diff update is forbidden - using content strategy.");
 
-                            return new AppUpdaterContentStrategy(context);
+                            return StrategyType.Content;
                         }
                     }
 
@@ -83,12 +122,15 @@ namespace PatchKit.Unity.Patcher.AppUpdater
 
                     if (diffCost < contentCost)
                     {
-                        DebugLogger.Log("Cost of updating with diff is lower than cost of updating with content. Using diff strategy.");
+                        DebugLogger.Log(
+                            "Cost of updating with diff is lower than cost of updating with content. Using diff strategy.");
 
-                        return new AppUpdaterDiffStrategy(context);
+                        return StrategyType.Diff;
                     }
 
-                    DebugLogger.Log("Cost of updating with content is lower than cost of updating with diff. Using content strategy.");
+                    DebugLogger.Log(
+                        "Cost of updating with content is lower than cost of updating with diff. Using content strategy.");
+#endif
                 }
                 else
                 {
@@ -100,7 +142,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater
                 DebugLogger.Log("Application is not installed. Using content strategy.");
             }
 
-            return new AppUpdaterContentStrategy(context);
+            return StrategyType.Content;
         }
 
         private ulong GetContentCost(AppUpdaterContext context)
