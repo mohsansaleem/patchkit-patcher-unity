@@ -848,8 +848,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ErrorDialog: {fileID: 272161832}
-  EditorAppSecret: ac20fc855b75a7ea5f3e936dfd38ccd8
-  EditorOverrideLatestVersionId: 0
+  EditorAppSecret: f21ce8123258a787169f16d1dc3702d6
+  EditorOverrideLatestVersionId: 3
   DefaultConfiguration:
     AppUpdaterConfiguration:
       UseTorrents: 1
@@ -3362,8 +3362,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 836955704}
   m_HandleRect: {fileID: 836955703}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

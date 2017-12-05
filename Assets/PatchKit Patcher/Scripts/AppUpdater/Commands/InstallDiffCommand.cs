@@ -12,6 +12,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
 {
     public class InstallDiffCommand : BaseAppUpdaterCommand, IInstallDiffCommand
     {
+        private const string Suffix = "_"; // FIX: Bug #714
         private static readonly DebugLogger DebugLogger = new DebugLogger(typeof(InstallDiffCommand));
 
         private readonly string _packagePath;
@@ -99,7 +100,8 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             try
             {
                 DebugLogger.Log("Unarchiving files.");
-                IUnarchiver unarchiver = CreateUnrachiver(packageDirPath);
+                string usedSuffix;
+                IUnarchiver unarchiver = CreateUnrachiver(packageDirPath, out usedSuffix);
 
                 _unarchivePackageStatusReporter.OnProgressChanged(0.0, "Unarchiving package...");
                 
@@ -112,9 +114,9 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
 
                 _unarchivePackageStatusReporter.OnProgressChanged(1.0, string.Empty);
 
-                ProcessAddedFiles(packageDirPath, cancellationToken);
+                ProcessAddedFiles(packageDirPath, usedSuffix, cancellationToken);
                 ProcessRemovedFiles(cancellationToken);
-                ProcessModifiedFiles(packageDirPath, cancellationToken);
+                ProcessModifiedFiles(packageDirPath, usedSuffix, cancellationToken);
                 DeleteEmptyMacAppDirectories();
             }
             finally
@@ -127,14 +129,16 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             }
         }
 
-        private IUnarchiver CreateUnrachiver(string destinationDir)
+        private IUnarchiver CreateUnrachiver(string destinationDir, out string usedSuffix)
         {
             switch (_versionDiffSummary.CompressionMethod)
             {
                 case "zip":
+                    usedSuffix = string.Empty;
                     return new ZipUnarchiver(_packagePath, destinationDir, _packagePassword);
                 case "pack1":
-                    return new Pack1Unarchiver(_packagePath, _pack1Meta, destinationDir, _packagePassword);
+                    usedSuffix = Suffix;
+                    return new Pack1Unarchiver(_packagePath, _pack1Meta, destinationDir, _packagePassword, Suffix);
                 default:
                     throw new InstallerException(string.Format("Unknown compression method: {0}",
                         _versionDiffSummary.CompressionMethod));
@@ -190,7 +194,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             _removeFilesStatusReporter.OnProgressChanged(1.0, string.Empty);
         }
 
-        private void ProcessAddedFiles(string packageDirPath,
+        private void ProcessAddedFiles(string packageDirPath, string suffix,
             CancellationToken cancellationToken)
         {
             DebugLogger.Log("Processing added files.");
@@ -214,13 +218,14 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
                 }
                 else
                 {
-                    string sourceFilePath = Path.Combine(packageDirPath, entryName);
+                    string sourceFilePath = Path.Combine(packageDirPath, entryName + suffix);
 
                     if (!File.Exists(sourceFilePath))
                     {
                         throw new InstallerException(string.Format("Cannot find file <{0}> in content package.", entryName));
                     }
 
+                    DebugLogger.LogFormat("Copying {0} -> {1}", sourceFilePath, entryName);
                     DirectoryOperations.CreateParentDirectory(entryPath);
                     FileOperations.Copy(sourceFilePath, entryPath, true);
 
@@ -233,7 +238,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             _addFilesStatusReporter.OnProgressChanged(1.0, "Installing package...");
         }
 
-        private void ProcessModifiedFiles(string packageDirPath,
+        private void ProcessModifiedFiles(string packageDirPath, string suffix,
             CancellationToken cancellationToken)
         {
             DebugLogger.Log("Processing modified files.");
@@ -248,7 +253,8 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
                 
                 if (!entryName.EndsWith("/"))
                 {
-                    PatchFile(entryName, packageDirPath);
+                    DebugLogger.LogFormat("Patching {0} -> {1}", packageDirPath, entryName);
+                    PatchFile(entryName, suffix, packageDirPath);
 
                     _localMetaData.RegisterEntry(entryName, _versionId);
                 }
@@ -289,7 +295,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             }
         }
 
-        private void PatchFile(string fileName, string packageDirPath)
+        private void PatchFile(string fileName, string suffix, string packageDirPath)
         {
             string filePath = _localData.Path.PathCombine(fileName);
 
@@ -315,7 +321,7 @@ namespace PatchKit.Unity.Patcher.AppUpdater.Commands
             try
             {
                 var filePatcher = new FilePatcher(filePath,
-                    Path.Combine(packageDirPath, fileName), newFilePath);
+                    Path.Combine(packageDirPath, fileName + suffix), newFilePath);
                 filePatcher.Patch();
 
                 FileOperations.Copy(newFilePath, filePath, true);

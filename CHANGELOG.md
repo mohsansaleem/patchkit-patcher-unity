@@ -4,8 +4,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [Unreleased]
+### Changed
+- Redesign error button label
+
+### Fixed
+- Fix issue with patching files which size is 2GB or more
+
+## [3.7.0]
+### Changed
+- Checking files hash before diff update only if content size is less that certain treshold (by default set to 1 GB)
+
+## [3.6.0]
 ### Added
+- Sentry messages are now sent with download link for log file and include additional data (log file guid, local version id, remote version id and app secret)
+- API operations logging
+- Support for PK_PATCHER_MAIN_URL environment variable
+
+### Changed
+- HTTP downloading timeouts changed from 10 to 30 seconds
+- Temp folders have more randomized names now
+- New log format
+- Switch to Unity web requests for main API
+
+### Fixed
+- Unpacking error when AV software would block files (now for content packages)
+- Fix delaying patcher quit due to log sending
+- Fix displaying no internet connection error in case of API connection problems
+- Fix Unity wrapped requests to return status code and correct exceptions
+- Fix bug with applying patches (CRITICAL FIX!)
+
+## [3.5.0]
+### Added
+- HTTPS support for keys server
 - Fallback for content strategy in case of diff strategy failure
 
 ### Changed
@@ -13,7 +44,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Compilation error on Unity 5.6 or higher
+- Unpacking error when AV software would block files
 - Geolocate: NullReferenceException on timeout
+- Error when Patcher would appear to be unresponding during downloading
 
 ## [3.4.0]
 ### Added
